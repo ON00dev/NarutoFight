@@ -1,10 +1,10 @@
 # controllers/cpu.py
-import random
 from models.character import Character
+import random
 
 class CPU(Character):
-    def __init__(self, name, position):
-        sprite_dir = f"assets/sprites/{name}"
+    def __init__(self, name, sprite_dir, position):
+        # Ajuste na assinatura para aceitar 3 argumentos (nome, diretório dos sprites, posição)
         super().__init__(name, sprite_dir, position)
 
     def update(self):

@@ -2,12 +2,15 @@
 import pygame
 import os
 
+
 class Character(pygame.sprite.Sprite):
     def __init__(self, name, sprite_dir, position):
         super().__init__()
         self.name = name
-        # Caminho relativo a partir da raiz do projeto
-        self.sprite_dir = sprite_dir
+        # Construa o caminho relativo ao diretório base do projeto
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # Use os.path.normpath para normalizar o caminho e remover './'
+        self.sprite_dir = os.path.normpath(os.path.join(self.base_dir, sprite_dir))
         self.position = position
         self.animations = self.load_animations()
         self.current_animation = self.animations["idle"]
@@ -21,7 +24,7 @@ class Character(pygame.sprite.Sprite):
     def load_images(self, action):
         """Carrega todos os frames para uma determinada ação."""
         frames = []
-        # Caminho relativo ao diretório raiz do projeto
+        # Construa o caminho completo para a ação específica
         path = os.path.join(self.sprite_dir, action)
 
         print(f"Tentando carregar imagens de: {path}")  # Verificação de debug
@@ -50,7 +53,9 @@ class Character(pygame.sprite.Sprite):
             "jump": self.load_images("jump"),
             "crouch": self.load_images("crouch"),
             "attack": self.load_images("attack"),
-            "special": self.load_images("special")
+            "special": self.load_images("special"),
+            "block": self.load_images("block"),
+            "run": self.load_images("run")
         }
         return animations
 

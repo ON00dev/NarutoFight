@@ -3,8 +3,8 @@ from models.character import Character
 import pygame
 
 class Player(Character):
-    def __init__(self, name, position):
-        sprite_dir = f"assets/sprites/{name}"
+    def __init__(self, name, sprite_dir, position):
+        # Ajuste na assinatura para aceitar 3 argumentos (nome, diretório dos sprites, posição)
         super().__init__(name, sprite_dir, position)
 
     def update(self):
