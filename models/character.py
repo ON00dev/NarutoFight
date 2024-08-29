@@ -52,10 +52,16 @@ class Character(pygame.sprite.Sprite):
             "walk": self.load_images("walk"),
             "jump": self.load_images("jump"),
             "crouch": self.load_images("crouch"),
-            "attack": self.load_images("attack"),
+            "attack_1": self.load_images("attack_1")
+            "attack_2": self.load_images("attack_2")
+            "attack_3": self.load_images("attack_3"),
             "special": self.load_images("special"),
             "block": self.load_images("block"),
-            "run": self.load_images("run")
+            "run": self.load_images("run"),
+            "clones": self.load_images("clones"),
+            "damage": self.load_images("damage"),
+            "teleport": self.load_images("teleport")
+
         }
         return animations
 
