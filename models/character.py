@@ -52,8 +52,8 @@ class Character(pygame.sprite.Sprite):
             "walk": self.load_images("walk"),
             "jump": self.load_images("jump"),
             "crouch": self.load_images("crouch"),
-            "attack_1": self.load_images("attack_1")
-            "attack_2": self.load_images("attack_2")
+            "attack_1": self.load_images("attack_1"),
+            "attack_2": self.load_images("attack_2"),
             "attack_3": self.load_images("attack_3"),
             "special": self.load_images("special"),
             "block": self.load_images("block"),
