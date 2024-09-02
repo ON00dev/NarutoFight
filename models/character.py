@@ -2,29 +2,26 @@
 import pygame
 import os
 
-
 class Character(pygame.sprite.Sprite):
     def __init__(self, name, sprite_dir, position):
         super().__init__()
         self.name = name
-        # Construa o caminho relativo ao diretório base do projeto
-        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        # Use os.path.normpath para normalizar o caminho e remover './'
-        self.sprite_dir = os.path.normpath(os.path.join(self.base_dir, sprite_dir))
+        # Corrigindo o caminho para garantir que seja relativo ao diretório raiz do projeto
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.sprite_dir = os.path.normpath(os.path.join(project_root, sprite_dir.lstrip("./")))
         self.position = position
         self.animations = self.load_animations()
-        self.current_animation = self.animations["idle"]
+        self.current_animation = self.animations.get("idle", [])
         self.current_frame = 0
         self.animation_speed = 0.2
         self.action = "idle"
         self.image = self.current_animation[self.current_frame]
         self.rect = self.image.get_rect(topleft=self.position)
         self.health = 100
+        self.facing_left = True  # Por padrão, os sprites estão virados para a esquerda
 
     def load_images(self, action):
-        """Carrega todos os frames para uma determinada ação."""
         frames = []
-        # Construa o caminho completo para a ação específica
         path = os.path.join(self.sprite_dir, action)
 
         print(f"Tentando carregar imagens de: {path}")  # Verificação de debug
@@ -36,7 +33,8 @@ class Character(pygame.sprite.Sprite):
             if filename.endswith(".png"):
                 img_path = os.path.join(path, filename)
                 try:
-                    frames.append(pygame.image.load(img_path).convert_alpha())
+                    frame = pygame.image.load(img_path).convert_alpha()
+                    frames.append(frame)
                 except pygame.error as e:
                     raise FileNotFoundError(f"Erro ao carregar imagem {img_path}: {e}")
 
@@ -46,7 +44,6 @@ class Character(pygame.sprite.Sprite):
         return frames
 
     def load_animations(self):
-        """Carrega todas as animações para o personagem."""
         animations = {
             "idle": self.load_images("idle"),
             "walk": self.load_images("walk"),
@@ -55,30 +52,36 @@ class Character(pygame.sprite.Sprite):
             "attack_1": self.load_images("attack_1"),
             "attack_2": self.load_images("attack_2"),
             "attack_3": self.load_images("attack_3"),
-            "special": self.load_images("special"),
+            "special_1": self.load_images("special1"),
             "block": self.load_images("block"),
             "run": self.load_images("run"),
             "clones": self.load_images("clones"),
             "damage": self.load_images("damage"),
-            "teleport": self.load_images("teleport")
+            "teleport": self.load_images("teleport"),
+            "fall": self.load_images("fall"),
+            "reappear": self.load_images("reappear"),
+            "projectil_1": self.load_images("projectil1")
 
         }
+
         return animations
 
     def animate(self):
-        """Atualiza o frame atual da animação."""
         self.current_frame += self.animation_speed
         if self.current_frame >= len(self.current_animation):
             self.current_frame = 0
         self.image = self.current_animation[int(self.current_frame)]
+        if not self.facing_left:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def update(self):
-        """Atualiza o estado do personagem."""
         self.animate()
 
     def set_action(self, action):
-        """Muda a animação do personagem."""
         if action != self.action:
-            self.action = action
-            self.current_animation = self.animations[action]
-            self.current_frame = 0
+            if action in self.animations:
+                self.action = action
+                self.current_animation = self.animations[action]
+                self.current_frame = 0
+            else:
+                print(f"A animação para '{action}' não foi encontrada.")

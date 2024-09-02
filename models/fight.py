@@ -8,7 +8,7 @@ class Fight:
     def update(self):
         # Atualiza o estado do player e da CPU
         self.player.update()
-        self.cpu.update()
+        self.cpu.update(self.player.rect.topleft)  # Passa a posição do player para a CPU
 
     def draw(self):
         # Desenha os personagens na tela
