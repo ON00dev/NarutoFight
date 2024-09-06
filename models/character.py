@@ -30,6 +30,11 @@ class Character(pygame.sprite.Sprite):
         self.load_animations_threaded("idle")
         self.set_action("idle")  # Define a animação inicial como idle
 
+    def is_on_screen(self):
+        """Verifica se o personagem está dentro dos limites visíveis da tela."""
+        screen_width, screen_height = pygame.display.get_surface().get_size()
+        return self.rect.right > 0 and self.rect.left < screen_width and self.rect.bottom > 0 and self.rect.top < screen_height
+
     def load_images(self, action):
         """Carrega os sprites de uma ação específica."""
         if action not in self.animation_cache:
@@ -105,6 +110,9 @@ class Character(pygame.sprite.Sprite):
 
     def update(self, action):
         """Atualiza o estado do personagem."""
+        if not self.is_on_screen():
+            return  # Suspende a atualização se o personagem estiver fora da tela
+
         self.animate()
 
         # Atualiza a posição vertical se o personagem estiver pulando
