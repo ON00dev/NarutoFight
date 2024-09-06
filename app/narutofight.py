@@ -7,7 +7,7 @@ from controllers.player import Player
 from controllers.cpu import CPU
 
 pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption("Naruto Fight")
 clock = pygame.time.Clock()
 
@@ -37,9 +37,12 @@ def draw_hp_bar(screen, x, y, percentage, color):
 
 def main():
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    player = Player("s_naruto", os.path.join(project_root, "assets/sprites/s_naruto"), (100, 482))
-    cpu = CPU("s_naruto", os.path.join(project_root, "assets/sprites/s_naruto"), (600, 482))
+    player = Player("naruto", os.path.join(project_root, "assets/sprites/s_naruto"), (100, 482))
+    cpu = CPU("naruto", os.path.join(project_root, "assets/sprites/s_naruto"), (600, 482))
     fight = Fight(player, cpu, screen)
+
+    player.load_all_animations()  # Inicia o carregamento de todas as animações em segundo plano
+    cpu.load_all_animations()  # Inicia o carregamento das animações da CPU
 
     while True:
         for event in pygame.event.get():
@@ -47,18 +50,23 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        player.update()
-        cpu.update(player.rect.topleft)
+        # Limpar eventos que não são usados frequentemente
+        pygame.event.clear(pygame.MOUSEMOTION)  # Exemplo: Limpa eventos de movimento de mouse
 
+        # Atualiza o estado do player e da CPU
+        player.update(cpu.rect.topleft)  # Passa a posição da CPU para o Player
+        cpu.update(player.rect.topleft)  # Passa a posição do Player para a CPU
+
+        # Renderiza fundo, chão e barras de chakra/HP
         screen.blit(background, (0, 0))
         screen.blit(floor, (0, HEIGHT - floor.get_height()))
 
-        # Desenhar as barras de chakra e HP
-        draw_hp_bar(screen, 20, 10, player.health, (255, 200, 0))  # Barra de vida do player
-        draw_chakra_bar(screen, 20, 40, player.chakra, (0, 175, 255))  # Barra de chakra do player
+        # Desenha as barras de chakra e HP
+        draw_hp_bar(screen, 20, 10, player.health, (255, 200, 0))
+        draw_chakra_bar(screen, 20, 40, player.chakra, (0, 175, 255))
 
-        draw_hp_bar(screen, WIDTH - 320, 10, cpu.health, (255, 200, 0))  # Barra de vida da CPU
-        draw_chakra_bar(screen, WIDTH - 220, 40, cpu.chakra, (0, 175, 255))  # Barra de chakra da CPU
+        draw_hp_bar(screen, WIDTH - 320, 10, cpu.health, (255, 200, 0))
+        draw_chakra_bar(screen, WIDTH - 220, 40, cpu.chakra, (0, 175, 255))
 
         fight.update()
         fight.draw()

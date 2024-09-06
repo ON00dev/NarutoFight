@@ -17,7 +17,18 @@ try:
 
     WIDTH = int(config['DISPLAY']['width'])
     HEIGHT = int(config['DISPLAY']['height'])
-    FPS = int(config['DISPLAY']['fps'])
+
+    if (FPS := int(config['DISPLAY']['fps'])) > 15:
+        print("fps definido muito ALTO para esse jogo! Definiremos o fps no Padrão Recomendado.")
+        FPS = 10
+
+    elif (FPS := int(config['DISPLAY']['fps'])) < 7:
+        print("fps definido muito BAIXO para esse jogo! Definiremos o fps no Padrão Recomendado.")
+        FPS = 10
+
+    else:
+        FPS = int(config['DISPLAY']['fps'])
+        print(f"\nfps : [{FPS}]")
 
     KEYS = {
         'attack_1': getattr(pygame, config['CONTROLS']['attack_1']),
