@@ -1,9 +1,8 @@
-# controllers/player.py
 import time
-
+import pygame
 from models.character import Character
 from config.settings import KEYS
-import pygame
+
 
 class Player(Character):
     def __init__(self, name, sprite_dir, position):
@@ -11,7 +10,12 @@ class Player(Character):
         self.name = name
         self.position = position
         self.sprite_dir = sprite_dir
-        self.animations = self.load_all_animations()  # Corrigido para carregar animações
+        self.animations = self.load_all_animations()  # Carrega todas as animações
+
+        # Verifica se as animações foram carregadas corretamente
+        if not self.animations or "idle" not in self.animations:
+            raise ValueError("Falha ao carregar as animações, verifique o caminho do sprite.")
+
         self.current_animation = self.animations["idle"]
         self.current_frame = 0
         self.frame_duration = 50  # Duração de cada frame em milissegundos
@@ -27,10 +31,13 @@ class Player(Character):
                           "block", "clones", "teleport", "reappear", "special_1", "special_2"]
         animations = {}
         for action in animation_list:
-            animations[action] = self.load_images(action)  # Carrega as animações para cada ação
-        return animations  # Retorna o dicionário com todas as animações carregadas
+            try:
+                animations[action] = self.load_images(action)  # Carrega os frames de cada animação
+            except FileNotFoundError as e:
+                print(f"Erro ao carregar animação {action}: {e}")
+        return animations if animations else None  # Retorna o dicionário de animações ou None se falhar
 
-    def update(self, cpu_position):  # Modificado para aceitar `cpu_position`
+    def update(self, cpu_position):
         keys = pygame.key.get_pressed()
 
         # Controle de ataques

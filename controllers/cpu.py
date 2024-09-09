@@ -1,4 +1,3 @@
-# controllers/cpu.py
 import time
 import random
 import pygame
@@ -21,8 +20,8 @@ class CPU(Character):
         self.image = self.current_animation[self.current_frame]
         self.rect = self.image.get_rect(topleft=self.position)
         self.facing_left = False
-        self.special_cooldown = 0
-        self.is_teleporting = False
+        self.special_cooldown = 0  # Cooldown para o uso de specials
+        self.is_busy = False  # Flag que define se a CPU está ocupada com uma ação
 
     def load_all_animations(self):
         """Carrega todas as animações da CPU."""
@@ -38,19 +37,22 @@ class CPU(Character):
 
     def update(self, player_position):
         """Atualiza o estado da CPU com base na posição do player e em sua lógica de combate."""
+        if self.is_busy:
+            self.animate()  # Continua a animação atual se estiver ocupada
+            return
+
         # Atualiza a direção da CPU para olhar para o player
         if player_position[0] < self.rect.x:
             self.facing_left = True  # Olha para a esquerda
         else:
             self.facing_left = False  # Olha para a direita
 
-        # Continua com a lógica de comportamento da CPU
         distance_to_player = abs(player_position[0] - self.rect.x)
 
-        if self.chakra < 20:  # Recarregar chakra
+        if self.chakra < 20:
             self.recharge_chakra()
             self.set_action("block")
-        elif self.health < 50:  # Recuar quando com pouca vida
+        elif self.health < 50:
             self.recover_or_flee(distance_to_player)
         else:
             if distance_to_player > 200:
@@ -66,7 +68,6 @@ class CPU(Character):
         """Decide a próxima ação da CPU com base na situação atual."""
         current_time = time.time()
 
-        # Ataques especiais e decisões com base no chakra e cooldown
         if self.chakra > 45 and current_time > self.special_cooldown:
             self.set_action("special_1")
             self.special_cooldown = current_time + 15  # Cooldown de 15 segundos para o próximo special
@@ -119,12 +120,13 @@ class CPU(Character):
 
     def set_action(self, action):
         """Muda a animação da CPU."""
-        if action != self.action:
+        if action != self.action and not self.is_busy:
             if action in self.animations:
                 self.action = action
                 self.current_animation = self.animations[action]
                 self.current_frame = 0  # Reinicia a animação desde o início
                 self.last_frame_update_time = pygame.time.get_ticks()  # Reinicia o timer
+                self.is_busy = True  # CPU fica ocupada até a animação terminar
                 print(f"CPU action: {self.action}")
             else:
                 print(f"A animação para '{action}' não foi encontrada.")
@@ -141,6 +143,8 @@ class CPU(Character):
             # Reinicia a animação se todos os frames já foram exibidos
             if self.current_frame >= len(self.current_animation):
                 self.current_frame = 0
+                self.is_busy = False  # Libera a CPU após a animação terminar
+                self.set_action("idle")  # Volta para idle após terminar a ação
 
         # Atualiza a imagem com base no frame atual
         self.image = self.current_animation[self.current_frame]
